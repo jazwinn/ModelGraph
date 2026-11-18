@@ -1,0 +1,73 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Visual Studio 2026 (x64)",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build",
+      "environment": {
+        "VCPKG_ROOT": "C:/vcpkg"
+      }
+    },
+    {
+      "name": "cpu",
+      "displayName": "Visual Studio 2026 (x64, no CUDA)",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build-cpu",
+      "cacheVariables": {
+        "IE_ENABLE_CUDA": "OFF"
+      }
+    },
+    {
+      "name": "dev",
+      "displayName": "Visual Studio 2026 (x64, InferenceEngine from ../InferenceEngine source)",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build-dev",
+      "cacheVariables": {
+        "IE_SOURCE_DIR": "${sourceDir}/../InferenceEngine"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "default",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "default",
+      "configuration": "Release"
+    },
+    {
+      "name": "cpu-release",
+      "configurePreset": "cpu",
+      "configuration": "Release"
+    },
+    {
+      "name": "dev-release",
+      "configurePreset": "dev",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "release",
+      "configurePreset": "default",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug",
+      "configurePreset": "default",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,838 @@
+{
+  "format": "modelgraph",
+  "graph": {
+    "links": [
+      {
+        "from": [
+          1,
+          "ids"
+        ],
+        "to": [
+          2,
+          "ids"
+        ]
+      },
+      {
+        "from": [
+          1,
+          "ids"
+        ],
+        "to": [
+          4,
+          "ids"
+        ]
+      },
+      {
+        "from": [
+          4,
+          "positions"
+        ],
+        "to": [
+          5,
+          "ids"
+        ]
+      },
+      {
+        "from": [
+          2,
+          "out"
+        ],
+        "to": [
+          6,
+          "a"
+        ]
+      },
+      {
+        "from": [
+          5,
+          "out"
+        ],
+        "to": [
+          6,
+          "b"
+        ]
+      },
+      {
+        "from": [
+          6,
+          "out"
+        ],
+        "to": [
+          11,
+          "x"
+        ]
+      },
+      {
+        "from": [
+          11,
+          "y"
+        ],
+        "to": [
+          13,
+          "x"
+        ]
+      },
+      {
+        "from": [
+          13,
+          "y"
+        ],
+        "to": [
+          15,
+          "x"
+        ]
+      },
+      {
+        "from": [
+          15,
+          "y"
+        ],
+        "to": [
+          17,
+          "logits"
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "attrs": {},
+        "id": 1,
+        "name": "tokens",
+        "pos": [
+          0.0,
+          0.0
+        ],
+        "type": "TokenIds"
+      },
+      {
+        "attrs": {
+          "dim": "$d_model",
+          "num_embeddings": "$vocab_size"
+        },
+        "id": 2,
+        "name": "wte",
+        "pos": [
+          220.0,
+          0.0
+        ],
+        "type": "Embedding"
+      },
+      {
+        "attrs": {},
+        "id": 4,
+        "name": "positions",
+        "pos": [
+          220.0,
+          160.0
+        ],
+        "type": "Positions"
+      },
+      {
+        "attrs": {
+          "dim": "$d_model",
+          "num_embeddings": "$max_seq_len"
+        },
+        "id": 5,
+        "name": "wpe",
+        "pos": [
+          440.0,
+          160.0
+        ],
+        "type": "Embedding"
+      },
+      {
+        "attrs": {},
+        "id": 6,
+        "name": "embed_sum",
+        "pos": [
+          660.0,
+          40.0
+        ],
+        "type": "Add"
+      },
+      {
+        "attrs": {
+          "count": "$num_layers",
+          "subgraph": "Block"
+        },
+        "id": 11,
+        "name": "transformer.h",
+        "pos": [
+          880.0,
+          40.0
+        ],
+        "type": "Repeat",
+        "ui": {
+          "expanded": true
+        }
+      },
+      {
+        "attrs": {
+          "dim": "$d_model",
+          "eps": "$norm_eps"
+        },
+        "id": 13,
+        "name": "transformer.finalNorm",
+        "pos": [
+          1100.0,
+          40.0
+        ],
+        "type": "LayerNorm"
+      },
+      {
+        "attrs": {
+          "weight_from": "wte"
+        },
+        "id": 15,
+        "name": "lm_head",
+        "pos": [
+          1320.0,
+          40.0
+        ],
+        "type": "TiedLinear"
+      },
+      {
+        "attrs": {},
+        "id": 17,
+        "name": "logits",
+        "pos": [
+          1540.0,
+          40.0
+        ],
+        "type": "Logits"
+      }
+    ]
+  },
+  "model": {
+    "chat_template": "",
+    "checkpoint": "../../InferenceEngine/Models/gpt2/model.safetensors",
+    "context_size": 1024,
+    "device": "cuda",
+    "eos": [
+      50256
+    ],
+    "format": "gpt2",
+    "rename_rules": [],
+    "system_prompt": "You are a helpful assistant.",
+    "tokenizer": "../../InferenceEngine/Models/gpt2/tokenizer.json"
+  },
+  "name": "GPT-2 small",
+  "subgraphs": {
+    "Attention": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            4,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "y"
+          ],
+          "to": [
+            7,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "heads"
+          ],
+          "to": [
+            14,
+            "k"
+          ]
+        },
+        {
+          "from": [
+            7,
+            "heads"
+          ],
+          "to": [
+            14,
+            "v"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "heads"
+          ],
+          "to": [
+            15,
+            "q"
+          ]
+        },
+        {
+          "from": [
+            14,
+            "k_all"
+          ],
+          "to": [
+            15,
+            "k"
+          ]
+        },
+        {
+          "from": [
+            14,
+            "v_all"
+          ],
+          "to": [
+            15,
+            "v"
+          ]
+        },
+        {
+          "from": [
+            15,
+            "out"
+          ],
+          "to": [
+            16,
+            "heads"
+          ]
+        },
+        {
+          "from": [
+            16,
+            "x"
+          ],
+          "to": [
+            17,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            17,
+            "y"
+          ],
+          "to": [
+            18,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            0.0,
+            120.0
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "bias": true,
+            "in_features": "$d_model",
+            "out_features": "$num_heads * $head_dim"
+          },
+          "id": 2,
+          "name": "query",
+          "pos": [
+            200.0,
+            0.0
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": true,
+            "in_features": "$d_model",
+            "out_features": "$num_kv_heads * $head_dim"
+          },
+          "id": 3,
+          "name": "key",
+          "pos": [
+            200.0,
+            120.0
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": true,
+            "in_features": "$d_model",
+            "out_features": "$num_kv_heads * $head_dim"
+          },
+          "id": 4,
+          "name": "value",
+          "pos": [
+            200.0,
+            240.0
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "head_dim": "$head_dim",
+            "num_heads": "$num_heads"
+          },
+          "id": 5,
+          "name": "q_heads",
+          "pos": [
+            420.0,
+            0.0
+          ],
+          "type": "SplitHeads"
+        },
+        {
+          "attrs": {
+            "head_dim": "$head_dim",
+            "num_heads": "$num_kv_heads"
+          },
+          "id": 6,
+          "name": "k_heads",
+          "pos": [
+            420.0,
+            120.0
+          ],
+          "type": "SplitHeads"
+        },
+        {
+          "attrs": {
+            "head_dim": "$head_dim",
+            "num_heads": "$num_kv_heads"
+          },
+          "id": 7,
+          "name": "v_heads",
+          "pos": [
+            420.0,
+            240.0
+          ],
+          "type": "SplitHeads"
+        },
+        {
+          "attrs": {},
+          "id": 14,
+          "name": "cache",
+          "pos": [
+            860.0,
+            180.0
+          ],
+          "type": "KVCache"
+        },
+        {
+          "attrs": {
+            "causal": true
+          },
+          "id": 15,
+          "name": "sdpa",
+          "pos": [
+            1080.0,
+            60.0
+          ],
+          "type": "SDPA"
+        },
+        {
+          "attrs": {},
+          "id": 16,
+          "name": "merge",
+          "pos": [
+            1300.0,
+            60.0
+          ],
+          "type": "MergeHeads"
+        },
+        {
+          "attrs": {
+            "bias": true,
+            "in_features": "$num_heads * $head_dim",
+            "out_features": "$d_model"
+          },
+          "id": 17,
+          "name": "output_proj",
+          "pos": [
+            1520.0,
+            60.0
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 18,
+          "name": "y",
+          "pos": [
+            1740.0,
+            60.0
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "Block": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            4,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            4,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "out"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "y"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "out"
+          ],
+          "to": [
+            7,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "y"
+          ],
+          "to": [
+            7,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            7,
+            "out"
+          ],
+          "to": [
+            8,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            0.0,
+            0.0
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "dim": "$d_model",
+            "eps": "$norm_eps"
+          },
+          "id": 2,
+          "name": "attenNorm",
+          "pos": [
+            220.0,
+            0.0
+          ],
+          "type": "LayerNorm"
+        },
+        {
+          "attrs": {
+            "subgraph": "Attention"
+          },
+          "id": 3,
+          "name": "attention",
+          "pos": [
+            440.0,
+            0.0
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {},
+          "id": 4,
+          "name": "residual_attn",
+          "pos": [
+            660.0,
+            40.0
+          ],
+          "type": "Add"
+        },
+        {
+          "attrs": {
+            "dim": "$d_model",
+            "eps": "$norm_eps"
+          },
+          "id": 5,
+          "name": "mlpNorm",
+          "pos": [
+            880.0,
+            0.0
+          ],
+          "type": "LayerNorm"
+        },
+        {
+          "attrs": {
+            "subgraph": "MLP"
+          },
+          "id": 6,
+          "name": "mlp",
+          "pos": [
+            1100.0,
+            0.0
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {},
+          "id": 7,
+          "name": "residual_mlp",
+          "pos": [
+            1320.0,
+            40.0
+          ],
+          "type": "Add"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 8,
+          "name": "y",
+          "pos": [
+            1540.0,
+            40.0
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "MLP": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            4,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "y"
+          ],
+          "to": [
+            5,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            0.0,
+            60.0
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "bias": true,
+            "in_features": "$d_model",
+            "out_features": "$ffn_dim"
+          },
+          "id": 2,
+          "name": "up",
+          "pos": [
+            220.0,
+            60.0
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "kind": "gelu_tanh"
+          },
+          "id": 3,
+          "name": "act",
+          "pos": [
+            440.0,
+            0.0
+          ],
+          "type": "Activation"
+        },
+        {
+          "attrs": {
+            "bias": true,
+            "in_features": "$ffn_dim",
+            "out_features": "$d_model"
+          },
+          "id": 4,
+          "name": "down",
+          "pos": [
+            880.0,
+            60.0
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 5,
+          "name": "y",
+          "pos": [
+            1100.0,
+            60.0
+          ],
+          "type": "Output"
+        }
+      ]
+    }
+  },
+  "variables": {
+    "d_model": 768,
+    "ffn_dim": 3072,
+    "head_dim": 64,
+    "max_seq_len": 1024,
+    "norm_eps": 1e-05,
+    "num_heads": 12,
+    "num_kv_heads": 12,
+    "num_layers": 12,
+    "rope_theta": 10000.0,
+    "vocab_size": 50257
+  },
+  "version": 1
+}
