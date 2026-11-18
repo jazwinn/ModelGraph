@@ -1,51 +1,53 @@
 :root,
 :root[data-theme='dark'] {
-  --bg: #0f1115;
-  --panel: #151820;
-  --panel-2: #1b1f29;
-  --raised: #222734;
-  --border: #2a3040;
-  --border-strong: #3a4256;
-  --text: #e6e8ee;
-  --dim: #8a91a5;
-  --accent: #6d7cff;
-  --accent-soft: rgba(109, 124, 255, 0.16);
+  --bg: #0c0c0d;
+  --panel: #141415;
+  --panel-2: #19191b;
+  --raised: #222224;
+  --border: #2a2a2d;
+  --border-strong: #3c3c40;
+  --text: #ececec;
+  --dim: #8e8e93;
+  --accent: #ff8a3d;
+  --accent-fg: #1a0f06;
+  --accent-soft: rgba(255, 138, 61, 0.16);
   --good: #3ecf8e;
   --bad: #ff5d6c;
-  --warn: #f5b84b;
+  --warn: #f5c84b;
   --f32: #5aa9ff;
-  --i64: #f5a14b;
-  --grid: #2a3040;
-  --node: #1a1e28;
-  --node-head: #202533;
-  --nest-fill: rgba(255, 122, 178, 0.045);
-  --minimap-mask: rgba(10, 12, 16, 0.7);
-  --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --i64: #c79bff;
+  --grid: #2a2a2d;
+  --node: #18181a;
+  --node-head: #1f1f22;
+  --nest-fill: rgba(255, 138, 61, 0.04);
+  --minimap-mask: rgba(8, 8, 9, 0.72);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   color-scheme: dark;
 }
 
 :root[data-theme='light'] {
-  --bg: #f4f5f8;
+  --bg: #f3f3f2;
   --panel: #ffffff;
-  --panel-2: #f7f8fb;
-  --raised: #eef0f5;
-  --border: #e1e4ec;
-  --border-strong: #c9cedb;
-  --text: #1c2030;
-  --dim: #6b7286;
-  --accent: #5563f0;
-  --accent-soft: rgba(85, 99, 240, 0.12);
+  --panel-2: #f8f8f7;
+  --raised: #ececeb;
+  --border: #e0e0de;
+  --border-strong: #c8c8c5;
+  --text: #1b1b1c;
+  --dim: #6d6d70;
+  --accent: #e8661c;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(232, 102, 28, 0.13);
   --good: #12a46b;
   --bad: #e5384b;
   --warn: #c98a12;
   --f32: #2f7fe0;
-  --i64: #d9781e;
-  --grid: #d6dae4;
+  --i64: #8b5cf6;
+  --grid: #d6d6d3;
   --node: #ffffff;
-  --node-head: #f6f7fb;
-  --nest-fill: rgba(230, 74, 140, 0.04);
-  --minimap-mask: rgba(240, 242, 247, 0.7);
-  --shadow: 0 8px 28px rgba(30, 40, 70, 0.14);
+  --node-head: #f6f6f5;
+  --nest-fill: rgba(232, 102, 28, 0.04);
+  --minimap-mask: rgba(240, 240, 239, 0.7);
+  --shadow: 0 8px 28px rgba(20, 20, 20, 0.14);
   color-scheme: light;
 }
 
@@ -129,7 +131,7 @@ button:disabled {
 }
 button.primary {
   background: var(--accent);
-  color: white;
+  color: var(--accent-fg);
   font-weight: 600;
 }
 button.primary:hover:not(:disabled) {
@@ -240,7 +242,7 @@ textarea {
 }
 .switch input:checked + span::after {
   transform: translateX(14px);
-  background: white;
+  background: var(--accent-fg);
 }
 
 .dot {
@@ -974,7 +976,7 @@ label.inline {
 .drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(5, 7, 12, 0.45);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 70;
   display: flex;
   justify-content: flex-end;
@@ -1126,8 +1128,9 @@ label.inline {
 }
 
 button.primary kbd {
-  color: rgba(255, 255, 255, 0.85);
-  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--accent-fg);
+  border-color: color-mix(in srgb, var(--accent-fg) 45%, transparent);
+  opacity: 0.85;
 }
 
 /* ---- vertical layout: port rows ---- */
@@ -1291,3 +1294,4 @@ button.primary kbd {
   left: -14px;
   width: 14px;
 }
+
