@@ -25,9 +25,15 @@ cmake --build build --config Release
 # 2. Web UI
 cd web; npm install; npm run build; cd ..
 
-# 3. Run: opens http://127.0.0.1:8710 in your browser
+# 3. Model weights (optional: the "tiny" model runs on random weights)
+python tools\download_models.py gpt2                   # ~550 MB
+python tools\download_models.py llama3.2-1b-instruct   # ~2.5 GB
+
+# 4. Run: opens http://127.0.0.1:8710 in your browser
 build\src\Release\mg_server.exe
 ```
+
+Weights and tokenizers go into `models/`, which is git-ignored. The example graphs in `graphs/` point there (`../models/gpt2/model.safetensors`, ...). The script downloads from Hugging Face ([openai-community/gpt2](https://huggingface.co/openai-community/gpt2), and [unsloth/Llama-3.2-1B-Instruct](https://huggingface.co/unsloth/Llama-3.2-1B-Instruct), an ungated copy of Meta's model under the Llama 3.2 Community License). Set `HF_TOKEN` for models that need a login.
 
 Use the `cpu` preset (`cmake --preset cpu`) to build without CUDA. Pick the Python to embed with `-DPython_EXECUTABLE=...`. Mixing two Python installs (for example a conda Python on `PATH`) is not supported; the build copies the right `python3xx.dll` next to each executable.
 
@@ -94,6 +100,8 @@ src/Server/    mg_server: JSON API + serves web/dist
 src/Cli/       mg_cli: check, run and export graphs headlessly
 web/           React + React Flow editor
 graphs/        example models (gpt2, llama3.2-1b, tiny)
+models/        downloaded weights and tokenizers (git-ignored)
+tools/         download_models.py
 scripts/       Python node definitions
 tests/         GoogleTest suite
 ```

@@ -272,8 +272,8 @@ namespace mg
         {
             Document d = FromTransformerConfig(models::gpt2::Small(), "GPT-2 small");
             d.model.format = "gpt2";
-            d.model.checkpoint = "../../InferenceEngine/Models/gpt2/model.safetensors";
-            d.model.tokenizer = "../../InferenceEngine/Models/gpt2/tokenizer.json";
+            d.model.checkpoint = "../models/gpt2/model.safetensors";
+            d.model.tokenizer = "../models/gpt2/tokenizer.json";
             d.model.contextSize = 1024;
             return d;
         }
@@ -281,9 +281,9 @@ namespace mg
         {
             Document d = FromTransformerConfig(models::llama::Llama32_1B(), "Llama 3.2 1B Instruct");
             d.model.format = "llama";
-            d.model.checkpoint = "../../InferenceEngine/Models/llama3.2-instruct/model.safetensors";
-            d.model.tokenizer = "../../InferenceEngine/Models/llama3.2-instruct/tokenizer.json";
-            d.model.chatTemplate = "../../InferenceEngine/Models/llama3.2-instruct/tokenizer_config.json";
+            d.model.checkpoint = "../models/llama-3.2-1b-instruct/model.safetensors";
+            d.model.tokenizer = "../models/llama-3.2-1b-instruct/tokenizer.json";
+            d.model.chatTemplate = "../models/llama-3.2-1b-instruct/tokenizer_config.json";
             d.model.contextSize = 2048;
             return d;
         }

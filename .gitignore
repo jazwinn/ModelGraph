@@ -4,3 +4,6 @@ out/
 .vs/
 imgui.ini
 *.user
+
+# Model weights and tokenizers: fetch with tools/download_models.py
+models/
