@@ -21,7 +21,7 @@
 - **Proven equivalent:** the graph versions of GPT-2-style, Llama-style and post-norm models produce the same logits as hand-written C++ reference models, with and without the KV cache. The Llama-style comparison also runs on CUDA.
 - **Nothing is a black box:** attention is built from `Linear`, `SplitHeads`, `RoPE`, `KVCache` and `SDPA` nodes inside a nest you can open and rewire.
 - **Extensible in Python, hot-reloaded:** a missing layer is one `.py` file. Saving it reloads the node, and a model that's already built picks up the new `forward()` on the next token.
-- **24 GoogleTest tests**, all passing. GPT-2 generates at 20.97 tok/s on an RTX 4050 Laptop GPU.
+- **24 GoogleTest tests**, all passing.
 
 ## Highlights
 
@@ -123,19 +123,6 @@ sequenceDiagram
 | `tools/` | `download_models.py`, `record_demo.py` |
 | `tests/` | GoogleTest suite |
 | `models/` | downloaded weights and tokenizers (git-ignored) |
-
-## Performance
-
-Measured on an **NVIDIA GeForce RTX 4050 Laptop GPU (6 GB)** with `mg_cli run graphs/gpt2.json --tokens 64 "The history of the transistor"`, greedy decoding:
-
-| Model | Device | Load | Generation |
-| --- | --- | --- | --- |
-| GPT-2 small (124M) | CUDA | 2.52 s | 64 tokens in 3.13 s, **20.97 tok/s** |
-| GPT-2 small (124M) | CPU | 1.73 s | 64 tokens in 82.70 s, 0.84 tok/s |
-
-CPU and CUDA produced the same 64 tokens. Llama 3.2 1B Instruct also runs in chat mode on CUDA. Its speed isn't listed because the only measurement so far was taken while another process held most of the GPU's memory.
-
-**Current bottleneck:** the CPU path is about 25× slower than CUDA on the same graph, so use CUDA for anything beyond the `tiny` model. Weights are float32, so a 1B model needs about 5 GB, which is close to the limit of a 6 GB GPU.
 
 ## Correctness and testing
 
