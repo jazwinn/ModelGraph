@@ -22,6 +22,7 @@
 
 #include "Graph/Analyze.h"
 #include "Graph/Templates.h"
+#include "HubDownload.h"
 #include "Script/ScriptHost.h"
 #include "Session/Session.h"
 
@@ -129,6 +130,7 @@ namespace
         std::unique_ptr<mg::script::ScriptHost> host;
         std::mutex hostMutex;
         std::unique_ptr<mg::Session> session;
+        std::unique_ptr<mg::hub::Downloader> hub;
         std::atomic<bool> running{true};
         std::atomic<uint64_t> scriptGeneration{0};
     };
@@ -310,6 +312,7 @@ int main(int argc, char **argv)
     app.host = std::make_unique<mg::script::ScriptHost>(app.registry);
     app.host->AddDirectory(app.scripts);
     app.session = std::make_unique<mg::Session>(app.registry);
+    app.hub = std::make_unique<mg::hub::Downloader>(app.root / "models");
 
     // Hot reload: rescan scripts/ a few times a second.
     std::thread watcher([&app]
@@ -443,6 +446,24 @@ int main(int argc, char **argv)
         return {{"busy", s.busy}, {"ready", s.ready}, {"phase", s.phase}, {"log", s.log}, {"output", s.output}, {"prompt", s.prompt},
                 {"tokensPerSecond", s.tokensPerSecond}, {"parameters", s.parameters}, {"buildCount", s.buildCount},
                 {"registryVersion", app.registry.Version()}, {"scriptGeneration", app.scriptGeneration.load()}};
+    }));
+
+    // ---- Hugging Face downloads (into models/) ----
+    svr.Post("/api/hub/download", Api([&](const auto &, const json &body) -> json
+    {
+        const std::string repo = mg::hub::NormalizeRepo(body.value("repo", ""));
+        const fs::path docDir = GraphPath(app, body.value("file", "")).parent_path();
+        if (!app.hub->Start(repo, docDir)) throw mg::GraphError("a download is already running");
+        return {{"started", true}, {"repo", repo}};
+    }));
+    svr.Post("/api/hub/cancel", Api([&](const auto &, const json &) -> json
+    {
+        app.hub->Cancel();
+        return {{"cancelling", true}};
+    }));
+    svr.Get("/api/hub/status", Api([&](const auto &, const json &) -> json
+    {
+        return app.hub->Status();
     }));
 
     // ---- python scripts ----

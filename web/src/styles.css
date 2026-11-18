@@ -1295,3 +1295,33 @@ button.primary kbd {
   width: 14px;
 }
 
+/* ---- Hugging Face download ---- */
+
+.hub {
+  margin-bottom: 10px;
+}
+.hub input {
+  width: 100%;
+}
+.hub-progress {
+  margin: 8px 0 4px;
+}
+.hub-progress .bar {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--raised);
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.hub-progress .bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 6px;
+  transition: width 0.3s ease-out;
+}
+.hub-progress .mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -3,6 +3,7 @@ import { analysisKey } from '../canvas/flow';
 import { categoryColor } from '../canvas/Nodes';
 import { formatCount, graphOf, isNest, nestTarget, parseAttrInput, subgraphUsers, ungroup, uniqueName } from '../lib/docops';
 import { evaluate } from '../lib/expr';
+import { useHub } from '../lib/hub';
 import { keyOfPath, requestRelayout, useStore } from '../lib/store';
 import type { AttrSpec, AttrValue, Doc, GNode, GraphKey } from '../lib/types';
 
@@ -285,6 +286,63 @@ function AttrField({ spec, value, vars, doc, graphKey, self, onChange }: { spec:
   );
 }
 
+// ---- Hugging Face download ----------------------------------------------------
+
+function mb(n = 0) {
+  return n >= 1e9 ? `${(n / 1e9).toFixed(2)} GB` : `${Math.round(n / 1e6).toLocaleString()} MB`;
+}
+
+function HubDownload() {
+  const status = useHub((s) => s.status);
+  const { start, cancel, resume } = useHub.getState();
+  const toast = useStore((s) => s.toast);
+  const [repo, setRepo] = useState('');
+  useEffect(() => void resume(), [resume]);
+
+  const busy = !!status?.busy;
+  const total = status?.total ?? 0;
+  const done = status?.done ?? 0;
+  const pct = total ? Math.min(100, (done / total) * 100) : 0;
+  const go = () => {
+    if (!repo.trim() || busy) return;
+    start(repo.trim()).catch((e: Error) => toast(e.message, true));
+  };
+
+  return (
+    <div className="hub">
+      <div className="row gap">
+        <input
+          className="mono grow"
+          placeholder="org/model on Hugging Face"
+          value={repo}
+          disabled={busy}
+          onChange={(e) => setRepo(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && go()}
+        />
+        {busy ? (
+          <button className="secondary" onClick={() => void cancel()}>Cancel</button>
+        ) : (
+          <button className="primary" disabled={!repo.trim()} onClick={go}>Download</button>
+        )}
+      </div>
+      {busy ? (
+        <div className="hub-progress">
+          <div className="bar"><span style={{ width: `${pct}%` }} /></div>
+          <div className="row small dim">
+            <span className="mono grow">{status?.phase === 'downloading' ? status.file : status?.phase}</span>
+            <span>{total ? `${mb(done)} / ${mb(total)}` : ''}</span>
+          </div>
+        </div>
+      ) : (
+        <p className="note">
+          Fetches <code>model.safetensors</code>, the tokenizer and config into <code>models/</code>, then fills in the fields below.
+          The graph still has to match the model's architecture.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ---- document panel --------------------------------------------------------------
 
 function DocPanel({ doc, count }: { doc: Doc; count: number }) {
@@ -359,6 +417,7 @@ function DocPanel({ doc, count }: { doc: Doc; count: number }) {
       </div>
 
       <h4>Weights &amp; tokenizer</h4>
+      <HubDownload />
       <p className="note">Paths are relative to the graphs/ folder.</p>
       <label className="field">
         <span>checkpoint</span>

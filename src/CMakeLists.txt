@@ -70,7 +70,10 @@ mg_copy_python(mg_cli)
 
 # ---- Server: JSON API + the web editor in web/dist -----------------------------
 find_package(httplib CONFIG REQUIRED)
-add_executable(mg_server Server/main.cpp)
+add_executable(mg_server Server/main.cpp Server/HubDownload.cpp)
 target_link_libraries(mg_server PRIVATE mg_session httplib::httplib)
+if(WIN32)
+    target_link_libraries(mg_server PRIVATE winhttp)
+endif()
 target_compile_options(mg_server PRIVATE ${MG_WARNINGS})
 mg_copy_python(mg_server)

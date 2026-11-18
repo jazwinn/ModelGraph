@@ -35,6 +35,8 @@ build\src\Release\mg_server.exe
 
 Weights and tokenizers go into `models/`, which is git-ignored. The example graphs in `graphs/` point there (`../models/gpt2/model.safetensors`, ...). The script downloads from Hugging Face ([openai-community/gpt2](https://huggingface.co/openai-community/gpt2), and [unsloth/Llama-3.2-1B-Instruct](https://huggingface.co/unsloth/Llama-3.2-1B-Instruct), an ungated copy of Meta's model under the Llama 3.2 Community License). Set `HF_TOKEN` for models that need a login.
 
+You can also download from the editor: select nothing (so the inspector shows the document), type a repo such as `HuggingFaceTB/SmolLM2-135M-Instruct` under **Weights & tokenizer** and press **Download**. The server fetches `model.safetensors`, `tokenizer.json`, `tokenizer_config.json` and the config files into `models/<name>/`, then fills in the checkpoint, name mapping, tokenizer, chat template and stop tokens. Only single-file `model.safetensors` checkpoints are supported, and the graph must still match the model's architecture. For gated repos, set `HF_TOKEN` before starting `mg_server`.
+
 Use the `cpu` preset (`cmake --preset cpu`) to build without CUDA. Pick the Python to embed with `-DPython_EXECUTABLE=...`. Mixing two Python installs (for example a conda Python on `PATH`) is not supported; the build copies the right `python3xx.dll` next to each executable.
 
 For UI development, run `npm run dev` in `web/` (Vite on port 5173 proxies `/api` to a running `mg_server`).

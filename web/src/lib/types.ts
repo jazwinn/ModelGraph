@@ -145,3 +145,32 @@ export interface NodeRef {
   path: number[];
   id: number;
 }
+
+// ---- Hugging Face downloads ----
+
+export interface HubResult {
+  repo: string;
+  folder: string;
+  checkpoint: string;
+  format: string;
+  modelType: string;
+  tokenizer?: string;
+  chat_template?: string;
+  eos: number[];
+  notes: string[];
+  config?: Record<string, number>;
+}
+
+export interface HubStatus {
+  busy: boolean;
+  job: number;
+  repo?: string;
+  phase?: string;
+  file?: string;
+  fileDone?: number;
+  fileTotal?: number;
+  done?: number;
+  total?: number;
+  error?: string | null;
+  result?: HubResult | null;
+}

@@ -1,4 +1,4 @@
-import type { AnalyzeResult, Doc, NodeSpec, ScriptStatus, Status } from './types';
+import type { AnalyzeResult, Doc, HubStatus, NodeSpec, ScriptStatus, Status } from './types';
 
 async function call<T>(method: string, url: string, body?: unknown): Promise<T> {
   const res = await fetch(url, {
@@ -49,6 +49,10 @@ export const api = {
   generate: (o: { prompt: string; maxTokens: number; temperature: number; chat: boolean; system?: string }) => call('POST', '/api/generate', o),
   stop: () => call('POST', '/api/stop'),
   status: () => call<Status>('GET', '/api/status'),
+
+  hubDownload: (repo: string, file: string) => call<{ started: boolean; repo: string }>('POST', '/api/hub/download', { repo, file }),
+  hubCancel: () => call('POST', '/api/hub/cancel'),
+  hubStatus: () => call<HubStatus>('GET', '/api/hub/status'),
 
   scripts: () => call<{ scripts: ScriptStatus[]; dir: string }>('GET', '/api/scripts'),
   readScript: (file: string) => call<{ file: string; text: string }>('GET', `/api/scripts/${encodeURIComponent(file)}`),
