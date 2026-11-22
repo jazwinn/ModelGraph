@@ -63,6 +63,7 @@ namespace mg
 
     struct ModelSettings
     {
+        std::string source;             // Hugging Face repo the weights come from (org/name, optional)
         std::string checkpoint;         // .safetensors, relative to the document
         std::string format = "raw";     // raw | gpt2 | llama
         std::vector<RenameRuleSpec> rules;

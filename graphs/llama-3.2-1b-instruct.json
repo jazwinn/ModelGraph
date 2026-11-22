@@ -243,6 +243,7 @@
     ],
     "format": "llama",
     "rename_rules": [],
+    "source": "unsloth/Llama-3.2-1B-Instruct",
     "system_prompt": "You are a helpful assistant.",
     "tokenizer": "../models/llama-3.2-1b-instruct/tokenizer.json"
   },

@@ -23,6 +23,7 @@ function apply(r: HubResult) {
     return;
   }
   edit((d) => {
+    d.model.source = r.repo;
     d.model.checkpoint = r.checkpoint;
     d.model.format = r.format;
     if (r.tokenizer) d.model.tokenizer = r.tokenizer;

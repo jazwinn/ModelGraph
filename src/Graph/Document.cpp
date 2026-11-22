@@ -257,6 +257,7 @@ namespace mg
         for (const auto &r : model.rules) rules.push_back({{"from", r.from}, {"to", r.to}});
 
         json jmodel = {
+            {"source", model.source},
             {"checkpoint", model.checkpoint},
             {"format", model.format},
             {"rename_rules", rules},
@@ -291,6 +292,7 @@ namespace mg
         for (const auto &[k, v] : subgraphs.items()) d.subgraphs[k] = GraphFromJson(v);
 
         const json m = j.value("model", json::object());
+        d.model.source = m.value("source", "");
         d.model.checkpoint = m.value("checkpoint", "");
         d.model.format = m.value("format", "raw");
         for (const json &r : m.value("rename_rules", json::array()))

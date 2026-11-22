@@ -292,12 +292,14 @@ function mb(n = 0) {
   return n >= 1e9 ? `${(n / 1e9).toFixed(2)} GB` : `${Math.round(n / 1e6).toLocaleString()} MB`;
 }
 
-function HubDownload() {
+// `source` is the repo saved in the document, so a fresh clone is one click away.
+function HubDownload({ source }: { source: string }) {
   const status = useHub((s) => s.status);
   const { start, cancel, resume } = useHub.getState();
   const toast = useStore((s) => s.toast);
-  const [repo, setRepo] = useState('');
+  const [repo, setRepo] = useState(source);
   useEffect(() => void resume(), [resume]);
+  useEffect(() => setRepo(source), [source]);
 
   const busy = !!status?.busy;
   const total = status?.total ?? 0;
@@ -335,7 +337,8 @@ function HubDownload() {
         </div>
       ) : (
         <p className="note">
-          Fetches <code>model.safetensors</code>, the tokenizer and config into <code>models/</code>, then fills in the fields below.
+          Fetches <code>model.safetensors</code>, the tokenizer and config into <code>models/</code>, then fills in the fields below
+          and saves the repo in the graph.
           The graph still has to match the model's architecture.
         </p>
       )}
@@ -417,7 +420,7 @@ function DocPanel({ doc, count }: { doc: Doc; count: number }) {
       </div>
 
       <h4>Weights &amp; tokenizer</h4>
-      <HubDownload />
+      <HubDownload source={m.source ?? ''} />
       <p className="note">Paths are relative to the graphs/ folder.</p>
       <label className="field">
         <span>checkpoint</span>

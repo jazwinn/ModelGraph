@@ -29,6 +29,7 @@ export interface Graph {
 }
 
 export interface ModelSettings {
+  source?: string; // Hugging Face repo the weights come from (org/name)
   checkpoint: string;
   format: string;
   rename_rules: { from: string; to: string }[];

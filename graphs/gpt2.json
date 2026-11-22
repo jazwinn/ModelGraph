@@ -213,6 +213,7 @@
     ],
     "format": "gpt2",
     "rename_rules": [],
+    "source": "openai-community/gpt2",
     "system_prompt": "You are a helpful assistant.",
     "tokenizer": "../models/gpt2/tokenizer.json"
   },
