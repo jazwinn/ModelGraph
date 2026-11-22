@@ -243,6 +243,39 @@ def forward(ctx, x):               # ctx.attrs, ctx.params, ctx.start_pos, ctx.d
 - **float32 weights**, so memory is about 4 bytes per parameter.
 - Python helpers `ie.exp`, `ie.log`, `ie.pow` and `ie.map` run on the CPU.
 
+## Roadmap
+
+Running Qwen3.5 4B, a hybrid linear-attention model, as a graph worked and matched the reference implementation token for token. It also needed a conversion script and several workarounds. Each item below removes one of them.
+
+**Speed and memory**
+- Multi-threaded, cache-blocked CPU matrix multiply (or OpenBLAS/oneDNN when available). The Python nodes took 0.24 s of a 122 s run; the rest was `Linear` on the CPU.
+- Keep weights in bf16/f16, or quantise to int8/int4, and widen only inside kernels, so a 4B model fits an 8 GB GPU.
+- Load checkpoints straight into parameters (streamed or memory-mapped) instead of holding a second full copy.
+
+**Checkpoints**
+- Sharded checkpoints via `model.safetensors.index.json`, including the in-editor download.
+- Prefix filters in the document to skip vision towers and extra heads.
+- Richer name mapping: layer-index arithmetic (layer `i` → `layers.{i // 4}.{slot}`) or a Python loader script.
+- Per-tensor transforms on load: `1 + w` for zero-centred norms, squeeze, transpose.
+
+**Nodes**
+- Per-instance state for Python nodes (`ctx.state`, reset with the cache), or a built-in `StateSlot` node. This makes recurrent layers (Mamba, RWKV, Gated DeltaNet) first-class.
+- `Concat` and `Slice`/`Split` along an axis.
+- Partial RoPE (`rotary_dim`) and a choice of rotate-half or interleaved layout.
+- A zero-centred option on `RMSNorm`.
+- Engine kernels for `exp`, `log`, `softplus`, `rsqrt` and L2 norm.
+
+**Tokenizers and chat**
+- The NFC normalizer.
+- Chat-template variables (such as `enable_thinking`) settable from the Run panel.
+- Stop tokens read from `generation_config.json` on download.
+
+**Building and checking graphs**
+- Generate a starter graph from a Hugging Face `config.json` by `model_type`.
+- Python macros that emit whole subgraphs, not just single nodes.
+- Show the load report (missing, unused and mismatched weights) on the nodes in the editor.
+- A compare-with-reference tool, plus `mg_cli` options to print token ids and dump logits.
+
 ## Re-recording the demo
 
 ```powershell
