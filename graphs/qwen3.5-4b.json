@@ -1,0 +1,1641 @@
+{
+  "format": "modelgraph",
+  "graph": {
+    "links": [
+      {
+        "from": [
+          1,
+          "ids"
+        ],
+        "to": [
+          2,
+          "ids"
+        ]
+      },
+      {
+        "from": [
+          2,
+          "out"
+        ],
+        "to": [
+          3,
+          "x"
+        ]
+      },
+      {
+        "from": [
+          3,
+          "y"
+        ],
+        "to": [
+          4,
+          "x"
+        ]
+      },
+      {
+        "from": [
+          4,
+          "y"
+        ],
+        "to": [
+          5,
+          "x"
+        ]
+      },
+      {
+        "from": [
+          5,
+          "y"
+        ],
+        "to": [
+          6,
+          "logits"
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "attrs": {},
+        "id": 1,
+        "name": "tokens",
+        "pos": [
+          12,
+          12
+        ],
+        "type": "TokenIds"
+      },
+      {
+        "attrs": {
+          "dim": "$d_model",
+          "num_embeddings": "$vocab_size"
+        },
+        "id": 2,
+        "name": "embed_tokens",
+        "pos": [
+          12,
+          162
+        ],
+        "type": "Embedding"
+      },
+      {
+        "attrs": {
+          "count": "$num_blocks",
+          "subgraph": "HybridBlock"
+        },
+        "id": 3,
+        "name": "layers",
+        "pos": [
+          12,
+          312
+        ],
+        "type": "Repeat"
+      },
+      {
+        "attrs": {
+          "dim": "$d_model",
+          "eps": "$norm_eps"
+        },
+        "id": 4,
+        "name": "norm",
+        "pos": [
+          12,
+          462
+        ],
+        "type": "RMSNorm"
+      },
+      {
+        "attrs": {
+          "weight_from": "embed_tokens"
+        },
+        "id": 5,
+        "name": "lm_head",
+        "pos": [
+          12,
+          612
+        ],
+        "type": "TiedLinear"
+      },
+      {
+        "attrs": {},
+        "id": 6,
+        "name": "logits",
+        "pos": [
+          12,
+          762
+        ],
+        "type": "Logits"
+      }
+    ]
+  },
+  "layout": "TB",
+  "model": {
+    "chat_template": "../models/qwen3.5-4b/tokenizer_config.json",
+    "checkpoint": "../models/qwen3.5-4b/model.safetensors",
+    "context_size": 2048,
+    "device": "cpu",
+    "eos": [
+      248046,
+      248044
+    ],
+    "format": "raw",
+    "rename_rules": [],
+    "source": "Qwen/Qwen3.5-4B",
+    "system_prompt": "You are a helpful assistant.",
+    "tokenizer": "../models/qwen3.5-4b/tokenizer.json"
+  },
+  "name": "Qwen3.5 4B",
+  "subgraphs": {
+    "AttentionLayer": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            4,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            4,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "out"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "y"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "out"
+          ],
+          "to": [
+            7,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "y"
+          ],
+          "to": [
+            7,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            7,
+            "out"
+          ],
+          "to": [
+            8,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            12,
+            12
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "dim": "$d_model",
+            "eps": "$norm_eps"
+          },
+          "id": 2,
+          "name": "input_layernorm",
+          "pos": [
+            288,
+            162
+          ],
+          "type": "RMSNorm"
+        },
+        {
+          "attrs": {
+            "subgraph": "GatedAttention"
+          },
+          "id": 3,
+          "name": "self_attn",
+          "pos": [
+            288,
+            312
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {},
+          "id": 4,
+          "name": "residual_mixer",
+          "pos": [
+            12,
+            462
+          ],
+          "type": "Add"
+        },
+        {
+          "attrs": {
+            "dim": "$d_model",
+            "eps": "$norm_eps"
+          },
+          "id": 5,
+          "name": "post_attention_layernorm",
+          "pos": [
+            288,
+            612
+          ],
+          "type": "RMSNorm"
+        },
+        {
+          "attrs": {
+            "subgraph": "MLP"
+          },
+          "id": 6,
+          "name": "mlp",
+          "pos": [
+            288,
+            762
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {},
+          "id": 7,
+          "name": "residual_mlp",
+          "pos": [
+            12,
+            912
+          ],
+          "type": "Add"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 8,
+          "name": "y",
+          "pos": [
+            12,
+            1062
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "DeltaNetLayer": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            4,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            4,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "out"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "y"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "out"
+          ],
+          "to": [
+            7,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "y"
+          ],
+          "to": [
+            7,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            7,
+            "out"
+          ],
+          "to": [
+            8,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            12,
+            12
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "dim": "$d_model",
+            "eps": "$norm_eps"
+          },
+          "id": 2,
+          "name": "input_layernorm",
+          "pos": [
+            288,
+            162
+          ],
+          "type": "RMSNorm"
+        },
+        {
+          "attrs": {
+            "subgraph": "GatedDeltaNet"
+          },
+          "id": 3,
+          "name": "linear_attn",
+          "pos": [
+            288,
+            312
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {},
+          "id": 4,
+          "name": "residual_mixer",
+          "pos": [
+            12,
+            462
+          ],
+          "type": "Add"
+        },
+        {
+          "attrs": {
+            "dim": "$d_model",
+            "eps": "$norm_eps"
+          },
+          "id": 5,
+          "name": "post_attention_layernorm",
+          "pos": [
+            288,
+            612
+          ],
+          "type": "RMSNorm"
+        },
+        {
+          "attrs": {
+            "subgraph": "MLP"
+          },
+          "id": 6,
+          "name": "mlp",
+          "pos": [
+            288,
+            762
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {},
+          "id": 7,
+          "name": "residual_mlp",
+          "pos": [
+            12,
+            912
+          ],
+          "type": "Add"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 8,
+          "name": "y",
+          "pos": [
+            12,
+            1062
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "GatedAttention": {
+      "links": [
+        {
+          "from": [
+            5,
+            "query"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "y"
+          ],
+          "to": [
+            7,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            7,
+            "y"
+          ],
+          "to": [
+            8,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            8,
+            "y"
+          ],
+          "to": [
+            9,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            10,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            10,
+            "y"
+          ],
+          "to": [
+            11,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            11,
+            "y"
+          ],
+          "to": [
+            12,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            12,
+            "y"
+          ],
+          "to": [
+            13,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            4,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "y"
+          ],
+          "to": [
+            14,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            13,
+            "y"
+          ],
+          "to": [
+            15,
+            "k"
+          ]
+        },
+        {
+          "from": [
+            14,
+            "heads"
+          ],
+          "to": [
+            15,
+            "v"
+          ]
+        },
+        {
+          "from": [
+            9,
+            "y"
+          ],
+          "to": [
+            16,
+            "q"
+          ]
+        },
+        {
+          "from": [
+            15,
+            "k_all"
+          ],
+          "to": [
+            16,
+            "k"
+          ]
+        },
+        {
+          "from": [
+            15,
+            "v_all"
+          ],
+          "to": [
+            16,
+            "v"
+          ]
+        },
+        {
+          "from": [
+            16,
+            "out"
+          ],
+          "to": [
+            17,
+            "heads"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "gate"
+          ],
+          "to": [
+            18,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            17,
+            "x"
+          ],
+          "to": [
+            19,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            18,
+            "y"
+          ],
+          "to": [
+            19,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            19,
+            "out"
+          ],
+          "to": [
+            20,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            20,
+            "y"
+          ],
+          "to": [
+            21,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            288,
+            12
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$num_heads * $head_dim * 2"
+          },
+          "id": 2,
+          "name": "q_proj",
+          "pos": [
+            12,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$num_kv_heads * $head_dim"
+          },
+          "id": 3,
+          "name": "k_proj",
+          "pos": [
+            288,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$num_kv_heads * $head_dim"
+          },
+          "id": 4,
+          "name": "v_proj",
+          "pos": [
+            564,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "head_dim": "$head_dim",
+            "num_heads": "$num_heads"
+          },
+          "id": 5,
+          "name": "split",
+          "pos": [
+            12,
+            312
+          ],
+          "type": "SplitQueryGate"
+        },
+        {
+          "attrs": {
+            "shape": "B, S, $num_heads, $head_dim"
+          },
+          "id": 6,
+          "name": "q_heads",
+          "pos": [
+            12,
+            462
+          ],
+          "type": "Reshape"
+        },
+        {
+          "attrs": {
+            "dim": "$head_dim",
+            "eps": "$norm_eps"
+          },
+          "id": 7,
+          "name": "q_norm",
+          "pos": [
+            12,
+            612
+          ],
+          "type": "RMSNorm"
+        },
+        {
+          "attrs": {
+            "dim0": 1,
+            "dim1": 2
+          },
+          "id": 8,
+          "name": "q_transpose",
+          "pos": [
+            12,
+            762
+          ],
+          "type": "Transpose"
+        },
+        {
+          "attrs": {
+            "rotary_dim": "$rotary_dim",
+            "theta": "$rope_theta"
+          },
+          "id": 9,
+          "name": "rope_q",
+          "pos": [
+            12,
+            912
+          ],
+          "type": "PartialRoPE"
+        },
+        {
+          "attrs": {
+            "shape": "B, S, $num_kv_heads, $head_dim"
+          },
+          "id": 10,
+          "name": "k_heads",
+          "pos": [
+            288,
+            462
+          ],
+          "type": "Reshape"
+        },
+        {
+          "attrs": {
+            "dim": "$head_dim",
+            "eps": "$norm_eps"
+          },
+          "id": 11,
+          "name": "k_norm",
+          "pos": [
+            288,
+            612
+          ],
+          "type": "RMSNorm"
+        },
+        {
+          "attrs": {
+            "dim0": 1,
+            "dim1": 2
+          },
+          "id": 12,
+          "name": "k_transpose",
+          "pos": [
+            288,
+            762
+          ],
+          "type": "Transpose"
+        },
+        {
+          "attrs": {
+            "rotary_dim": "$rotary_dim",
+            "theta": "$rope_theta"
+          },
+          "id": 13,
+          "name": "rope_k",
+          "pos": [
+            288,
+            912
+          ],
+          "type": "PartialRoPE"
+        },
+        {
+          "attrs": {
+            "head_dim": "$head_dim",
+            "num_heads": "$num_kv_heads"
+          },
+          "id": 14,
+          "name": "v_heads",
+          "pos": [
+            564,
+            462
+          ],
+          "type": "SplitHeads"
+        },
+        {
+          "attrs": {},
+          "id": 15,
+          "name": "cache",
+          "pos": [
+            288,
+            1062
+          ],
+          "type": "KVCache"
+        },
+        {
+          "attrs": {
+            "causal": true
+          },
+          "id": 16,
+          "name": "sdpa",
+          "pos": [
+            288,
+            1212
+          ],
+          "type": "SDPA"
+        },
+        {
+          "attrs": {},
+          "id": 17,
+          "name": "merge",
+          "pos": [
+            288,
+            1362
+          ],
+          "type": "MergeHeads"
+        },
+        {
+          "attrs": {
+            "kind": "sigmoid"
+          },
+          "id": 18,
+          "name": "gate_act",
+          "pos": [
+            12,
+            1362
+          ],
+          "type": "Activation"
+        },
+        {
+          "attrs": {},
+          "id": 19,
+          "name": "gated",
+          "pos": [
+            288,
+            1512
+          ],
+          "type": "Mul"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$num_heads * $head_dim",
+            "out_features": "$d_model"
+          },
+          "id": 20,
+          "name": "o_proj",
+          "pos": [
+            288,
+            1662
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 21,
+          "name": "y",
+          "pos": [
+            288,
+            1812
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "GatedDeltaNet": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            4,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "y"
+          ],
+          "to": [
+            7,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            7,
+            "y"
+          ],
+          "to": [
+            8,
+            "qkv"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            8,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "y"
+          ],
+          "to": [
+            8,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            8,
+            "out"
+          ],
+          "to": [
+            9,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "y"
+          ],
+          "to": [
+            9,
+            "gate"
+          ]
+        },
+        {
+          "from": [
+            9,
+            "y"
+          ],
+          "to": [
+            10,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            10,
+            "y"
+          ],
+          "to": [
+            11,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            288,
+            12
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$lin_conv_dim"
+          },
+          "id": 2,
+          "name": "in_proj_qkv",
+          "pos": [
+            12,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$lin_v_heads"
+          },
+          "id": 3,
+          "name": "in_proj_b",
+          "pos": [
+            288,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$lin_v_heads"
+          },
+          "id": 4,
+          "name": "in_proj_a",
+          "pos": [
+            564,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$lin_v_heads * $lin_head_dim"
+          },
+          "id": 5,
+          "name": "in_proj_z",
+          "pos": [
+            840,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "channels": "$lin_conv_dim",
+            "kernel": "$lin_conv_kernel"
+          },
+          "id": 6,
+          "name": "conv",
+          "pos": [
+            12,
+            312
+          ],
+          "type": "CausalConv1d"
+        },
+        {
+          "attrs": {
+            "kind": "silu"
+          },
+          "id": 7,
+          "name": "conv_act",
+          "pos": [
+            12,
+            462
+          ],
+          "type": "Activation"
+        },
+        {
+          "attrs": {
+            "head_dim": "$lin_head_dim",
+            "num_k_heads": "$lin_k_heads",
+            "num_v_heads": "$lin_v_heads"
+          },
+          "id": 8,
+          "name": "delta_rule",
+          "pos": [
+            288,
+            612
+          ],
+          "type": "GatedDeltaRule"
+        },
+        {
+          "attrs": {
+            "eps": "$norm_eps",
+            "head_dim": "$lin_head_dim"
+          },
+          "id": 9,
+          "name": "norm",
+          "pos": [
+            564,
+            762
+          ],
+          "type": "GatedRMSNorm"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$lin_v_heads * $lin_head_dim",
+            "out_features": "$d_model"
+          },
+          "id": 10,
+          "name": "out_proj",
+          "pos": [
+            564,
+            912
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 11,
+          "name": "y",
+          "pos": [
+            564,
+            1062
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "HybridBlock": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            4,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "y"
+          ],
+          "to": [
+            5,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "y"
+          ],
+          "to": [
+            6,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            12,
+            12
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "subgraph": "DeltaNetLayer"
+          },
+          "id": 2,
+          "name": "delta0",
+          "pos": [
+            12,
+            162
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {
+            "subgraph": "DeltaNetLayer"
+          },
+          "id": 3,
+          "name": "delta1",
+          "pos": [
+            12,
+            312
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {
+            "subgraph": "DeltaNetLayer"
+          },
+          "id": 4,
+          "name": "delta2",
+          "pos": [
+            12,
+            462
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {
+            "subgraph": "AttentionLayer"
+          },
+          "id": 5,
+          "name": "attn",
+          "pos": [
+            12,
+            612
+          ],
+          "type": "Group"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 6,
+          "name": "y",
+          "pos": [
+            12,
+            762
+          ],
+          "type": "Output"
+        }
+      ]
+    },
+    "MLP": {
+      "links": [
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            2,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            1,
+            "out"
+          ],
+          "to": [
+            3,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            2,
+            "y"
+          ],
+          "to": [
+            4,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            4,
+            "y"
+          ],
+          "to": [
+            5,
+            "a"
+          ]
+        },
+        {
+          "from": [
+            3,
+            "y"
+          ],
+          "to": [
+            5,
+            "b"
+          ]
+        },
+        {
+          "from": [
+            5,
+            "out"
+          ],
+          "to": [
+            6,
+            "x"
+          ]
+        },
+        {
+          "from": [
+            6,
+            "y"
+          ],
+          "to": [
+            7,
+            "value"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "attrs": {
+            "dtype": "f32",
+            "index": 0,
+            "shape": "B, S, $d_model"
+          },
+          "id": 1,
+          "name": "x",
+          "pos": [
+            288,
+            12
+          ],
+          "type": "Input"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$ffn_dim"
+          },
+          "id": 2,
+          "name": "gate",
+          "pos": [
+            12,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$d_model",
+            "out_features": "$ffn_dim"
+          },
+          "id": 3,
+          "name": "up",
+          "pos": [
+            564,
+            162
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "kind": "silu"
+          },
+          "id": 4,
+          "name": "act",
+          "pos": [
+            12,
+            312
+          ],
+          "type": "Activation"
+        },
+        {
+          "attrs": {},
+          "id": 5,
+          "name": "gated",
+          "pos": [
+            288,
+            462
+          ],
+          "type": "Mul"
+        },
+        {
+          "attrs": {
+            "bias": false,
+            "in_features": "$ffn_dim",
+            "out_features": "$d_model"
+          },
+          "id": 6,
+          "name": "down",
+          "pos": [
+            288,
+            612
+          ],
+          "type": "Linear"
+        },
+        {
+          "attrs": {
+            "index": 0
+          },
+          "id": 7,
+          "name": "y",
+          "pos": [
+            288,
+            762
+          ],
+          "type": "Output"
+        }
+      ]
+    }
+  },
+  "variables": {
+    "d_model": 2560,
+    "ffn_dim": 9216,
+    "head_dim": 256,
+    "lin_conv_dim": "(2 * $lin_k_heads + $lin_v_heads) * $lin_head_dim",
+    "lin_conv_kernel": 4,
+    "lin_head_dim": 128,
+    "lin_k_heads": 16,
+    "lin_v_heads": 32,
+    "norm_eps": 1e-06,
+    "num_blocks": 8,
+    "num_heads": 16,
+    "num_kv_heads": 4,
+    "rope_theta": 10000000.0,
+    "rotary_dim": 64,
+    "vocab_size": 248320
+  },
+  "version": 1
+}
