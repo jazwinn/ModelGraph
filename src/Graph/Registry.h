@@ -98,6 +98,8 @@ namespace mg
         std::vector<KVSlotSpec> slots;
         std::map<std::string, std::shared_ptr<nn::transformer::RotaryEmbedding<Scalar>>> ropeCache;
         std::function<std::shared_ptr<Program>(const std::string &, const std::vector<TensorType> &)> buildSubgraph;
+        std::string path;          // canvas path of the graph being compiled: nest ids joined by '/'
+        int subgraphsBuilt = 0;    // counts buildSubgraph calls, so the compiler can tell nests apart
 
         size_t AllocateSlot(KVSlotSpec spec)
         {

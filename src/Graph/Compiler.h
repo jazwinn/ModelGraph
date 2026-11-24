@@ -26,6 +26,8 @@ namespace mg
         {
             std::string name;
             std::string type;
+            std::string key;                     // canvas id, e.g. "3/7:12" (see Activity)
+            bool nest = false;                   // runs a subgraph
             NodeRole role = NodeRole::Op;
             int ioIndex = 0;                     // Input/Output index
             std::shared_ptr<NodeKernel> kernel;  // null for Input/Output
@@ -57,7 +59,8 @@ namespace mg
         static std::shared_ptr<GraphModel> Build(const Document &doc, const Registry &registry);
 
         // ids: [batch, seq] token ids. Returns the first output (logits).
-        FTensor Forward(const ITensor &ids, GraphCache *cache = nullptr);
+        // `activity`, when given, records the nodes that run.
+        FTensor Forward(const ITensor &ids, GraphCache *cache = nullptr, Activity *activity = nullptr);
 
         GraphCache MakeCache(size_t batch, size_t maxSeq) const;
         void ToDevice(tensor::Device device);

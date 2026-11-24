@@ -448,6 +448,23 @@ int main(int argc, char **argv)
                 {"registryVersion", app.registry.Version()}, {"scriptGeneration", app.scriptGeneration.load()}};
     }));
 
+    // ---- per-node activity: heat (time share) and trace (slowed down) ----
+    svr.Get("/api/activity", Api([&](const auto &, const json &) -> json
+    {
+        const mg::Activity::Snapshot a = app.session->GetActivity().Get();
+        json nodes = json::object();
+        for (const auto &[key, e] : a.nodes)
+            nodes[key] = {{"seconds", e.seconds}, {"calls", e.calls}, {"nest", e.nest}};
+        return {{"mode", mg::ModeName(a.mode)}, {"traceDelayMs", a.traceDelayMs}, {"nodes", nodes}, {"running", a.running},
+                {"forwardSeconds", a.forwardSeconds}, {"forwards", a.forwards}, {"synced", a.synced}};
+    }));
+    svr.Post("/api/activity", Api([&](const auto &, const json &body) -> json
+    {
+        mg::Activity &a = app.session->GetActivity();
+        a.SetMode(mg::ParseMode(body.value("mode", std::string("off"))), body.value("traceDelayMs", 0));
+        return {{"mode", mg::ModeName(a.GetMode())}};
+    }));
+
     // ---- Hugging Face downloads (into models/) ----
     svr.Post("/api/hub/download", Api([&](const auto &, const json &body) -> json
     {

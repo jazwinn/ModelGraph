@@ -1,5 +1,6 @@
 #include "Graph/Compiler.h"
 
+#include <chrono>
 #include <map>
 
 namespace mg
@@ -16,6 +17,7 @@ namespace mg
                 if (it == state.doc.subgraphs.end()) throw GraphError("subgraph '" + name + "' does not exist");
                 const Analysis sub = Analyze(state.doc, it->second, state.registry, inputs);
                 if (!sub.Ok()) throw GraphError("subgraph '" + name + "' has errors:\n" + sub.Summary());
+                ++state.subgraphsBuilt;
                 auto program = std::make_shared<Program>();
                 program->Compile(it->second, sub, state);
                 return program;
@@ -41,6 +43,7 @@ namespace mg
             Step step;
             step.name = node.name;
             step.type = node.type;
+            step.key = state.path + ":" + std::to_string(id);
             step.role = spec->role;
             const NodePorts &ports = analysis.ports.at(id);
             step.numOutputs = ports.outputs.size();
@@ -55,14 +58,21 @@ namespace mg
             {
                 BuildArgs args{node, attrs, analysis.inputs.at(id), analysis.outputs.at(id), state};
                 if (!spec->build) throw GraphError("node type '" + node.type + "' cannot be executed");
+                // A nest's subgraph is compiled under the nest's own path.
+                const std::string outer = state.path;
+                const int builtBefore = state.subgraphsBuilt;
+                state.path = (outer.empty() ? "" : outer + "/") + std::to_string(id);
                 try
                 {
                     step.kernel = spec->build(args);
                 }
                 catch (const std::exception &e)
                 {
+                    state.path = outer;
                     throw GraphError("building '" + node.name + "': " + e.what());
                 }
+                state.path = outer;
+                step.nest = state.subgraphsBuilt != builtBefore;
                 if (auto module = step.kernel->GetModule())
                 {
                     this->RegisterSubmodule(node.name, module);
@@ -114,6 +124,38 @@ namespace mg
             if (src.step >= 0) ++m_uses[src.step][src.port];
     }
 
+    namespace
+    {
+        using Clock = std::chrono::steady_clock;
+
+        double Since(Clock::time_point start) { return std::chrono::duration<double>(Clock::now() - start).count(); }
+
+        // Runs one step and records it. A nest's time includes the nodes
+        // inside it; trace pauses are left out of every time.
+        std::vector<Value> RunTimed(RunContext &ctx, const Program::Step &s, const std::vector<Value> &in)
+        {
+            Activity &a = *ctx.activity;
+            a.Begin(s.key);
+            const double pausedBefore = a.PausedSeconds();
+            const auto start = Clock::now();
+            std::vector<Value> out;
+            try
+            {
+                out = s.kernel->Run(ctx, in);
+                a.Sync(ctx.device);
+            }
+            catch (...)
+            {
+                a.End(s.key, Since(start) - (a.PausedSeconds() - pausedBefore), s.nest);
+                throw;
+            }
+            const double seconds = Since(start) - (a.PausedSeconds() - pausedBefore);
+            if (!s.nest) a.Pause();
+            a.End(s.key, seconds, s.nest);
+            return out;
+        }
+    }
+
     std::vector<Value> Program::Run(RunContext &ctx, const std::vector<Value> &inputs)
     {
         std::vector<std::vector<Value>> values(steps.size());
@@ -147,7 +189,8 @@ namespace mg
             for (const Source &src : s.inputs) in.push_back(take(src));
             try
             {
-                values[i] = s.kernel->Run(ctx, in);
+                if (ctx.activity) values[i] = RunTimed(ctx, s, in);
+                else values[i] = s.kernel->Run(ctx, in);
             }
             catch (const std::exception &e)
             {
@@ -190,7 +233,7 @@ namespace mg
         return model;
     }
 
-    FTensor GraphModel::Forward(const ITensor &ids, GraphCache *cache)
+    FTensor GraphModel::Forward(const ITensor &ids, GraphCache *cache, Activity *activity)
     {
         if (ids.Rank() != 2) throw GraphError("token ids must be a [batch, seq] tensor");
         RunContext ctx;
@@ -198,12 +241,16 @@ namespace mg
         ctx.seqLen = ids.Shape()[1];
         ctx.startPos = cache ? cache->Length() : 0;
         ctx.device = m_device;
+        ctx.activity = activity && activity->Enabled() ? activity : nullptr;
         if (cache && ctx.startPos + ctx.seqLen > cache->MaxLength())
         {
             throw GraphError("sequence exceeds the cache length");
         }
 
+        const double pausedBefore = ctx.activity ? ctx.activity->PausedSeconds() : 0;
+        const auto start = Clock::now();
         const std::vector<Value> out = Run(ctx, {ids.GetDevice() == m_device ? ids : ids.To(m_device)});
+        if (ctx.activity) ctx.activity->AddForward(Since(start) - (ctx.activity->PausedSeconds() - pausedBefore));
         if (cache) cache->Advance(ctx.seqLen);
         return AsFloat(out.at(0), "model output");
     }

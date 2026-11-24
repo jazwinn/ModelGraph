@@ -42,7 +42,10 @@ namespace mg
         }
     }
 
-    Session::Session(const Registry &registry) : m_registry(registry) {}
+    Session::Session(const Registry &registry) : m_registry(registry)
+    {
+        m_activity.SetStopFlag(&m_stop);
+    }
 
     Session::~Session()
     {
@@ -185,6 +188,7 @@ namespace mg
             m_snapshot.parameters = m_model->ParameterCount();
             ++m_snapshot.buildCount;
         }
+        m_activity.Reset();   // node keys may have changed
         std::ostringstream done;
         done.precision(2);
         done << std::fixed << "model ready on " << (device == tensor::Device::CUDA ? "CUDA" : "CPU") << " in " << Seconds(start) << "s";
@@ -243,12 +247,13 @@ namespace mg
 
         SetPhase("prefill (" + std::to_string(ids.size()) + " tokens)");
         GraphCache cache = model->MakeCache(1, context);
+        m_activity.Reset();
         std::mt19937_64 rng(options.seed);
 
         const auto start = Clock::now();
         ITensor prompt({1, ids.size()});
         for (size_t i = 0; i < ids.size(); ++i) prompt(0, i) = ids[i];
-        FTensor logits = model->Forward(prompt, &cache);
+        FTensor logits = model->Forward(prompt, &cache, &m_activity);
         size_t last = ids.size() - 1;
 
         std::string text;
@@ -273,7 +278,7 @@ namespace mg
 
             ITensor step({1, 1});
             step(0, 0) = next;
-            logits = model->Forward(step, &cache);
+            logits = model->Forward(step, &cache, &m_activity);
             last = 0;
         }
 

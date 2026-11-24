@@ -8,6 +8,7 @@ add_library(mg_graph STATIC
     Graph/Builtins.cpp
     Graph/Weights.cpp
     Graph/Templates.cpp
+    Graph/Activity.cpp
 )
 add_library(ModelGraph::Graph ALIAS mg_graph)
 target_include_directories(mg_graph PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -18,6 +19,14 @@ target_link_libraries(mg_graph PUBLIC
     InferenceEngine::Generation
 )
 target_compile_options(mg_graph PRIVATE ${MG_WARNINGS})
+# Activity timings wait for the GPU, so they need the CUDA runtime headers.
+if(IE_ENABLE_CUDA)
+    if(NOT TARGET CUDA::cudart_static)
+        find_package(CUDAToolkit REQUIRED)
+    endif()
+    target_link_libraries(mg_graph PRIVATE CUDA::cudart_static)
+    target_compile_definitions(mg_graph PRIVATE MG_CUDA_SYNC)
+endif()
 if(TARGET inference_engine_update)
     add_dependencies(mg_graph inference_engine_update)   # update the engine before compiling against it
 endif()

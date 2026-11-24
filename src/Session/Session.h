@@ -68,6 +68,10 @@ namespace mg
         void ClearLog();
         std::shared_ptr<GraphModel> Model() const;
 
+        // Per-node timings of the current or last generation. Change its mode
+        // at any time; the next forward pass picks it up.
+        Activity &GetActivity() { return m_activity; }
+
     private:
         void Log(const std::string &line);
         void SetPhase(const std::string &phase);
@@ -86,5 +90,6 @@ namespace mg
         std::shared_ptr<models::ChatTemplate> m_chat;
         std::string m_chatPath;
         Snapshot m_snapshot;
+        Activity m_activity;
     };
 }

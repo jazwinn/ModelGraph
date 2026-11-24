@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "Graph/Activity.h"
 #include "Graph/Types.h"
 #include "NeuralNet/Module.h"
 #include "NeuralNet/Transformer/KVCache.h"
@@ -58,6 +59,7 @@ namespace mg
         size_t startPos = 0;      // absolute position of the first token in this call
         size_t seqLen = 0;
         tensor::Device device = tensor::Device::CPU;
+        Activity *activity = nullptr;   // set to record which nodes run
     };
 
     // The runtime half of a node. Nodes with weights expose them through

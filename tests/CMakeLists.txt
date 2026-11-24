@@ -7,6 +7,7 @@ add_executable(mg_tests
     analyze_test.cpp
     equivalence_test.cpp
     script_test.cpp
+    activity_test.cpp
 )
 target_link_libraries(mg_tests PRIVATE
     mg_session
