@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useActivity, type ActivityMode } from '../lib/activity';
 import { api } from '../lib/api';
 import { formatCount } from '../lib/docops';
 import { useStore } from '../lib/store';
@@ -102,6 +103,7 @@ export function RunPanel() {
               </label>
             </div>
             {!valid && <p className="note bad">Fix the graph problems before building.</p>}
+            <ActivityControls />
             {doc.model.chat_template && chat && (
               <details className="system-prompt" open={showSystem} onToggle={(e) => setShowSystem((e.target as HTMLDetailsElement).open)}>
                 <summary>
@@ -190,5 +192,39 @@ export function RunPanel() {
         </div>
       )}
     </section>
+  );
+}
+
+const MODES: { mode: ActivityMode; label: string; help: string }[] = [
+  { mode: 'off', label: 'Off', help: 'No per-node recording' },
+  { mode: 'heat', label: 'Heat', help: "Nodes glow green by their share of the model's time" },
+  { mode: 'trace', label: 'Trace', help: 'Slows the model down so you can watch each node run' },
+];
+
+// How the canvas shows the running model: off, time-share heat, or a slowed-down trace.
+function ActivityControls() {
+  const mode = useActivity((s) => s.mode);
+  const delay = useActivity((s) => s.traceDelayMs);
+  const synced = useActivity((s) => s.synced);
+  const toast = useStore((s) => s.toast);
+  const set = (m: ActivityMode, d = delay) => useActivity.getState().setMode(m, d).catch((e: Error) => toast(e.message, true));
+  return (
+    <div className="row gap wrap activity-row">
+      <span className="dim">Node activity</span>
+      <div className="seg" role="radiogroup" aria-label="Node activity">
+        {MODES.map((m) => (
+          <button key={m.mode} role="radio" aria-checked={mode === m.mode} className={mode === m.mode ? 'on' : ''} title={m.help} onClick={() => set(m.mode)}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+      {mode === 'trace' && (
+        <label className="inline">
+          <input type="range" min={10} max={1000} step={10} value={delay} onChange={(e) => set('trace', Number(e.target.value))} />
+          <span className="mono">{delay} ms / node</span>
+        </label>
+      )}
+      {mode !== 'off' && synced && <span className="dim small" title="Each node waits for the GPU so its time is real; this lowers tok/s">GPU-synced timings</span>}
+    </div>
   );
 }

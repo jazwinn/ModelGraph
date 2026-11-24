@@ -1325,3 +1325,75 @@ button.primary kbd {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ---- node activity: heat (time share) and trace (the node running now) ---- */
+.node {
+  transition: box-shadow 0.5s ease-out, border-color 0.5s ease-out;
+}
+.node.heat:not(.selected),
+.node.nest.repeat.heat:not(.expanded):not(.selected) {
+  border-color: color-mix(in srgb, var(--good) calc(25% + 75% * var(--heat)), var(--border-strong));
+  box-shadow:
+    0 0 calc(4px + 22px * var(--heat)) calc(2px * var(--heat)) color-mix(in srgb, var(--good) calc(15% + 55% * var(--heat)), transparent),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.node.nest.expanded.heat:not(.selected) {
+  border-color: color-mix(in srgb, var(--good) calc(30% + 70% * var(--heat)), var(--border-strong));
+  box-shadow: 0 0 calc(6px + 18px * var(--heat)) color-mix(in srgb, var(--good) calc(8% + 22% * var(--heat)), transparent);
+}
+/* Appears at once, then fades out through the .node transition when it ends. */
+.node.running,
+.node.nest.repeat.running:not(.expanded) {
+  border-color: var(--good);
+  box-shadow: 0 0 0 2px var(--good), 0 0 28px 6px color-mix(in srgb, var(--good) 55%, transparent);
+  transition: none;
+}
+.node.nest.expanded.running {
+  border-color: var(--good);
+  box-shadow: 0 0 0 2px var(--good), 0 0 26px color-mix(in srgb, var(--good) 22%, transparent);
+  transition: none;
+}
+.heat-badge {
+  position: absolute;
+  top: -9px;
+  right: 12px;
+  z-index: 2;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--good);
+  color: #04150d;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.activity-row {
+  align-items: center;
+}
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.seg > button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--dim);
+  padding: 3px 11px;
+}
+.seg > button + button {
+  border-left: 1px solid var(--border-strong);
+}
+.seg > button.on {
+  background: color-mix(in srgb, var(--good) 18%, transparent);
+  color: var(--good);
+}
+@media (prefers-reduced-motion: reduce) {
+  .node {
+    transition: none;
+  }
+}

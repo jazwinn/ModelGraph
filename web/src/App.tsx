@@ -2,6 +2,7 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect, useState } from 'react';
 import { Canvas } from './canvas/Canvas';
 import { api, isAbsolute } from './lib/api';
+import { pollActivity, resetActivitySync, syncActivityMode, useActivity } from './lib/activity';
 import { useStore } from './lib/store';
 import { Inspector } from './panels/Inspector';
 import { Palette } from './panels/Palette';
@@ -71,12 +72,19 @@ export function App() {
     let alive = true;
     const tick = async () => {
       try {
-        useStore.getState().setStatus(await api.status());
+        const status = await api.status();
+        useStore.getState().setStatus(status);
         setError('');
+        await syncActivityMode();
+        await pollActivity(status.busy);
       } catch {
+        resetActivitySync();   // a restarted server starts with activity off
         setError('Lost connection to mg_server. Is it still running?');
       }
-      if (alive) timer = setTimeout(tick, useStore.getState().status?.busy ? 200 : 1000);
+      // Trace mode moves node by node, so it needs a faster poll to be smooth.
+      const busy = useStore.getState().status?.busy;
+      const delay = !busy ? 1000 : useActivity.getState().mode === 'trace' ? 60 : 200;
+      if (alive) timer = setTimeout(tick, delay);
     };
     void tick();
     return () => {

@@ -1,6 +1,7 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { memo } from 'react';
 import { formatCount, graphOf } from '../lib/docops';
+import { activityTitle, formatShare, useNodeActivity } from '../lib/activity';
 import { evaluate } from '../lib/expr';
 import { requestRelayout, useStore } from '../lib/store';
 import type { PortSpec } from '../lib/types';
@@ -113,11 +114,28 @@ function Header({ data, color, children }: { data: FlowNode['data']; color: stri
   );
 }
 
-export const OpNode = memo(function OpNode({ data, selected }: NodeProps<FlowNode>) {
+// Glow classes and style for a node's activity (see lib/activity.ts).
+function useGlow(id: string) {
+  const a = useNodeActivity(id);
+  const heat = a.mode === 'heat' && a.intensity > 0;
+  const className = `${heat ? ' heat' : ''}${a.running ? ' running' : ''}`;
+  const style = heat ? { ['--heat' as string]: a.intensity } : {};
+  // Label the nodes that matter; the rest still have the tooltip.
+  const badge = a.mode !== 'off' && a.share >= 0.01 ? <span className="heat-badge">{formatShare(a.share)}</span> : null;
+  return { className, style, badge, title: activityTitle(a) };
+}
+
+export const OpNode = memo(function OpNode({ id, data, selected }: NodeProps<FlowNode>) {
   const color = categoryColor(data.spec?.category);
   const role = data.spec?.role;
+  const glow = useGlow(id);
   return (
-    <div className={`node op${selected ? ' selected' : ''}${data.error ? ' has-error' : ''}`} style={{ ['--accent' as string]: color }}>
+    <div
+      className={`node op${selected ? ' selected' : ''}${data.error ? ' has-error' : ''}${glow.className}`}
+      style={{ ['--accent' as string]: color, ...glow.style }}
+      title={glow.title}
+    >
+      {glow.badge}
       <Header data={data} color={color} />
       <Ports data={data} />
       {!!data.info?.params && <div className="node-foot">{formatCount(data.info.params)} params</div>}
@@ -139,8 +157,9 @@ export const OpNode = memo(function OpNode({ data, selected }: NodeProps<FlowNod
   );
 });
 
-export const NestNode = memo(function NestNode({ data, selected }: NodeProps<FlowNode>) {
+export const NestNode = memo(function NestNode({ id, data, selected }: NodeProps<FlowNode>) {
   const edit = useStore((s) => s.edit);
+  const glow = useGlow(id);
   const { node, expanded, ports, info } = data;
   const color = categoryColor('Structure');
   const sub = typeof node.attrs.subgraph === 'string' ? node.attrs.subgraph : '';
@@ -171,9 +190,11 @@ export const NestNode = memo(function NestNode({ data, selected }: NodeProps<Flo
 
   return (
     <div
-      className={`node nest${expanded ? ' expanded' : ''}${selected ? ' selected' : ''}${data.error ? ' has-error' : ''}${node.type === 'Repeat' ? ' repeat' : ''}`}
-      style={{ ['--accent' as string]: color }}
+      className={`node nest${expanded ? ' expanded' : ''}${selected ? ' selected' : ''}${data.error ? ' has-error' : ''}${node.type === 'Repeat' ? ' repeat' : ''}${glow.className}`}
+      style={{ ['--accent' as string]: color, ...glow.style }}
+      title={glow.title}
     >
+      {glow.badge}
       <Header data={data} color={color}>
         {badge}
         <button className="nest-toggle nodrag" onClick={toggle} title={expanded ? 'Collapse' : 'Expand'} disabled={data.recursive}>

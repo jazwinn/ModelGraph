@@ -1,3 +1,4 @@
+import type { ActivityMode, ActivityReply } from './activity';
 import type { AnalyzeResult, Doc, HubStatus, NodeSpec, ScriptStatus, Status } from './types';
 
 async function call<T>(method: string, url: string, body?: unknown): Promise<T> {
@@ -49,6 +50,8 @@ export const api = {
   generate: (o: { prompt: string; maxTokens: number; temperature: number; chat: boolean; system?: string }) => call('POST', '/api/generate', o),
   stop: () => call('POST', '/api/stop'),
   status: () => call<Status>('GET', '/api/status'),
+  activity: () => call<ActivityReply>('GET', '/api/activity'),
+  setActivity: (mode: ActivityMode, traceDelayMs: number) => call('POST', '/api/activity', { mode, traceDelayMs }),
 
   hubDownload: (repo: string, file: string) => call<{ started: boolean; repo: string }>('POST', '/api/hub/download', { repo, file }),
   hubCancel: () => call('POST', '/api/hub/cancel'),
